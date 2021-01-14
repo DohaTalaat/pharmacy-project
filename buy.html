@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background: url(image/phare3.jpg) no-repeat fixed;
+
+      background-position: center;
+      background-size: cover
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container my-4">
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end my-2 ">
+      <a href="home page/index.html"><button class="btn btn-primary me-md-2"  type="submit">Go To The Home Page</button></a>
+   </div>
+    <div id="item"></div>
+    <div class="row text-center">
+
+
+      <div class="col">
+        <div class="mb-3">
+          <label style="color: rgb(5, 5, 95); font-size: large; " for="formGroupExampleInput"
+            class="form-label fw-bold">User Name</label>
+          <input type="text" class="form-control" id="username" placeholder=" please input item name">
+        </div>
+        <div class="mb-3">
+          <label style="color: rgb(5, 5, 95); font-size: large;" for="formGroupExampleInput2"
+            class="form-label fw-bold">Item Name</label>
+          <input type="text" class="form-control" id="itemname" placeholder="how much will you input">
+        </div>
+        <div class="mb-3">
+          <label style="color: rgb(5, 5, 95); font-size: large;" for="formGroupExampleInput2"
+            class="form-label fw-bold">Quantity</label>
+          <input type="number" class="form-control" id="quantity" placeholder="how much will you input">
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          <button class="btn btn-primary me-md-2" type="Submit" onclick="addtocar()">ADD to car</button>
+        </div>
+      </div>
+
+    </div>
+    <!--Grid row-->
+
+  </div>
+  <!--js-->
+  <script type="text/javascript">
+    var db = openDatabase('pharmaa', '1.0', 'Tttt', 2 * 1024 * 1024);
+    var msg;
+
+    db.transaction(function (tx) {
+      tx.executeSql('CREATE TABLE IF NOT EXISTS invoice (username,item,quantity)');
+    });
+
+      (function displayItems() {
+        var html = "<table class='table table-bordered mb-5'><thead class='thead-light'><tr><th>Name</th><th>Quantity</th></tr></thead>";
+
+        db.transaction(function (tx) {
+          tx.executeSql(
+            function (tx, results) {
+              for (var i = 0; i < results.rows.length; i++) {
+                html += "<tr>";
+                for (var prop in results.rows.item(i)) {
+                  html += "<td>" + results.rows.item(i)[prop] + "</td>";
+                }
+                html += "</tr>";
+              }
+              html += "</table>";
+              document.getElementById("item").innerHTML = html;
+            }, null);
+          });
+        })();
+
+        function addtocar() {
+          var username = document.getElementById("username").value;
+          var itemname = document.getElementById("itemname").value;
+          var quan = document.getElementById("quantity").value;
+
+          db.transaction(function (tx) {
+            tx.executeSql('select quantity from item where item=? ', [itemname],
+              function (tx, results) {
+                if (results.rows.length == 1) {
+                  let available_quantity = results.rows[0].quantity;
+
+                  if (available_quantity > quan) {
+                    alert("bought")
+                    db.transaction(function (tx) {
+                      tx.executeSql('update  item set quantity=quantity-? where item=? ', [quan, itemname]);
+                      console.log("updated");
+                      tx.executeSql('INSERT INTO invoice  (username,item,quantity) VALUES (?, ?,?)', [username, itemname, quan]);
+
+                    });
+                  }
+                  else {
+                    alert("sold")
+                  }
+                }
+              }
+              , null);
+          });
+        }
+  </script>
+
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

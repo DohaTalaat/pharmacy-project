@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+         <style>
+          body
+          {
+           background: url(image/phare3.jpg)  no-repeat fixed ;
+           
+           background-position: center;
+           background-size: cover
+           
+          }
+        </style>
+    </head>
+    <body >
+        <div class="container">
+        <div id="sell"></div>
+            <div class="col-12">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end my-2 ">
+                <a href="home page/index.html"><button class="btn btn-primary me-md-2"  type="submit">Go To The Home Page</button></a>
+             </div>
+                <img  src="https://mdbootstrap.com/img/Photos/Others/placeholder-avatar.jpg "
+                class="rounded-circle z-depth-1-half avatar-pic  " alt="example placeholder avatar" width="200" height="200">
+                <h3 style="color: rgb(5, 5, 95); font-family: 'Times New Roman', Times, serif;"> Please Enter Photo For Your Item</h3>
+              <input type="file"  id="photo" >
+              <button onclick="convert()"> add</button>
+             
+              
+             
+             <form class="row g-3">
+                <div class="col-md-6">
+                  <label for="inputEmail4" class="form-label " style="font-size: large; font-family: 'Times New Roman', Times, serif; ">Item name</label>
+                  <input type="text" class="form-control" id="itemname">
+                </div>
+                <div class="col-md-6">
+                  <label for="inputPassword4" class="form-label"  style="font-size: large; font-family: 'Times New Roman', Times, serif; ">Quantity</label>
+                  <input type="number" class="form-control" id="quantity">
+                </div>
+                
+            </div>  
+          
+        </form>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary my-3" onclick="login()" >ADD ITEM</button>
+        </div>
+         </div>
+         <script src="./jquery.js"></script>
+         <script > 
+              const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        async function convert() {
+            const file = $('#photo')[0].files[0];
+
+            let str = await toBase64(file)
+            console.log(str);
+        }
+        </script>
+          <script type = "text/javascript">
+          
+        
+          var db = openDatabase('pharmaa', '1.0', 'Tttt', 2 * 1024 * 1024); 
+                 var msg; 
+                 
+                 db.transaction(function (tx) { 
+                        tx.executeSql('CREATE TABLE IF NOT EXISTS item (item , quantity,photo)');
+                     
+                       
+                     })
+                     db.transaction(function (tx) { 
+                        tx.executeSql( function (tx, results) { 
+                           var html = "<table>";
+                           for (var i = 0; i < results.rows.length; i++) { 
+                                html += "<tr>";
+                                for(var prop in results.rows.item(i)){
+                                    html+="<td>"+results.rows.item(i)[prop] +"</td>";
+                              }
+                              html+="</tr>";
+                           } 
+                           html+="</table>";
+                           document.getElementById("sell").innerHTML = html;
+                        }, null); 
+                     });
+                     async  function additem(){
+          const file = $('#photo')[0].files[0];
+         let str = await toBase64(file)
+      var itemname = document.getElementById("itemname").value;
+      var quantity = document.getElementById("quantity").value;
+     
+			db.transaction(function (tx) { 
+            tx.executeSql('INSERT INTO  item (item , quantity,photo) VALUES (?, ?,?)',[itemname,quantity,str]); 
+           
+            
+         })
+			 alert("you added item")
+		 }
+     async  function login(){
+        db.transaction(function(tx){
+          tx.executeSql('select* from item where item=? ',[itemname.value]
+          , function(tx,results){
+            if (results.rows.length==0){
+              additem()
+            }
+            else{ 
+              tx.executeSql('update  item set quantity=quantity+? where item=? ',[ quantity.value,itemname.value])
+             
+              console.log("updated")      
+          ;}
+            
+          } 
+           )
+        }); return false
+      }
+                  
+                     async  function additem(){
+          const file = $('#photo')[0].files[0];
+         let str = await toBase64(file)
+      var itemname = document.getElementById("itemname").value;
+      var quantity = document.getElementById("quantity").value;
+     
+			db.transaction(function (tx) { 
+            tx.executeSql('INSERT INTO  item (item , quantity,photo) VALUES (?, ?,?)',[itemname,quantity,str]); 
+           
+            
+         })
+			 alert("you added item")
+		 }
+                     </script>
+              <script src="node_modules/jquery/dist/jquery.min.js" ></script>
+        <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+ 
+    </body>
+    </html>
